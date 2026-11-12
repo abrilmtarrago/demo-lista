@@ -135,7 +135,7 @@ export default function App() {
   return (
     <main className="app">
       <header>
-        <h1>Lista de compras</h1>
+        <h1>Lista de compras v2</h1>
         <p className="sub">
           {cargando ? 'Cargando…' : `${pendientes} pendiente${pendientes === 1 ? '' : 's'} de ${items.length}`}
         </p>
