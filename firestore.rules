@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// Reglas de seguridad de Cloud Firestore.
+// IMPORTANTE: estas reglas se publican en Firebase Console -> Firestore -> Reglas.
+// Subir este archivo a GitHub o desplegar en Vercel NO las activa.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /items/{itemId} {
+
+      // LEER: solo el dueño del documento puede verlo.
+      allow read: if request.auth != null
+                  && request.auth.uid == resource.data.uid;
+
+      // CREAR: hay que estar logueado, el uid del documento tiene que ser el mío,
+      // y el nombre tiene que ser un texto de 1 a 60 caracteres.
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.uid
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.size() > 0
+                    && request.resource.data.nombre.size() <= 60
+                    && request.resource.data.comprado is bool;
+
+      // MODIFICAR: solo el dueño, y no puede cambiar de dueño.
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.uid
+                    && request.resource.data.uid == resource.data.uid;
+
+      // ELIMINAR: solo el dueño.
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.uid;
+    }
+
+    // Todo lo que no esté explícitamente permitido arriba, queda bloqueado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
